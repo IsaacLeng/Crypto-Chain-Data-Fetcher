@@ -1,6 +1,6 @@
 # ⛓️ ETH vs SOL: Live Block Data Analyzer
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/IsaacLeng/Crypto-Chain-Data-Fetcher/blob/main/ETH-SOL-TPS-Analysis.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/IsaacLeng/Crypto-Chain-Data-Fetcher/blob/main/ETH_SOL_TPS_Analysis.ipynb)
 *(Click the badge above to run the script directly in your browser / 点击上方徽章即可在浏览器中一键运行)*
 
 ## 📖 Overview / 项目简介
