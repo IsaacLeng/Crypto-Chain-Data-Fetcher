@@ -1,51 +1,73 @@
-# ⛓️ ETH vs SOL: Live Block Data Analyzer
+# ⛓️ ETH vs SOL: Live Block Data Analyzer & Pipeline
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/IsaacLeng/Crypto-Chain-Data-Fetcher/blob/main/ETH_SOL_TPS_Analysis.ipynb)
-*(Click the badge above to run the script directly in your browser / 点击上方徽章即可在浏览器中一键运行)*
+*(Click the badge above to run the dashboard directly in your browser / 点击上方徽章即可在浏览器中一键运行数据面板)*
 
 ## 📖 Overview / 项目简介
-This project provides a lightweight, real-time data pipeline to fetch and compare live block metrics between **Ethereum (ETH)** and **Solana (SOL)**. 
+This project provides a lightweight, object-oriented data pipeline to fetch and analyze live on-chain metrics between **Ethereum (ETH)** and **Solana (SOL)**. 
 
-By querying public RPC nodes, this script highlights the fundamental architectural differences between a modular, high-security network (Ethereum) and a monolithic, high-throughput network (Solana). It serves as a foundational tool for broader blockchain data extraction and quantitative time-series analysis.
+By querying public RPC nodes, this tool not only captures real-time block snapshots but also calculates true network throughput (TPS) using rolling time-series windows. It highlights the architectural differences between a modular network (Ethereum) and a high-throughput monolithic network (Solana), serving as a foundation for broader quantitative blockchain analysis.
 
-本项目是一个轻量级的实时数据管道，通过直接调用公共 RPC 节点，实时抓取并对比以太坊和 Solana 的区块底层数据。这直观地展示了“模块化”与“单体式”区块链在吞吐量（TPS）和出块逻辑上的本质差异。
+本项目是一个轻量级的面向对象数据管道，通过直接调用公共 RPC 节点，实时抓取并分析以太坊和 Solana 的链上数据。除了获取最新区块快照，本项目还通过滑动时间窗口计算真实的实时吞吐量（TPS），为量化分析和区块链基础架构对比提供数据支撑。
 
 ## ✨ Core Features / 核心功能
-- **Ethereum Data Fetching:** Utilizes `Web3.py` to extract block height, timestamp, transaction count, and block size via Cloudflare/PublicNode RPCs.
-- **Solana Data Fetching:** Uses native `requests` to query the Solana Mainnet-Beta JSON-RPC, extracting real-time slot data and high-frequency transaction signatures.
-- **Robust Error Handling:** Built-in safeguards against common RPC rate limits and empty slot queries.
+- **Real-Time TPS Calculation:** Computes actual Transactions Per Second (TPS) using rolling windows (e.g., last 5 blocks for ETH, last 15 slots for SOL) based on exact Unix timestamps.
+- **Modular OOP Architecture:** Built with a scalable Object-Oriented Programming design, separating RPC client connections (`chain_clients.py`) from analytical logic (`tps_analyzer.py`).
+- **Robust Error Handling:** Built-in retry mechanisms and safeguards against Solana's skipped slots and strict RPC rate limits.
 - **Bilingual Documentation:** Code is thoroughly commented in both English and Chinese.
 
+## 📂 Project Structure / 项目结构
+```text
+Crypto-Chain-Data-Fetcher/
+├── src/
+│   ├── __init__.py
+│   ├── chain_clients.py    # RPC wrappers for Ethereum & Solana
+│   └── tps_analyzer.py     # Time-series analysis and TPS logic
+├── ETH_SOL_TPS_Analysis.ipynb # Interactive Colab Dashboard
+├── requirements.txt        # Package dependencies
+└── README.md
+```
 ## 💻 Tech Stack / 技术栈
-- **Python 3.x**
-- **Web3.py** (Ethereum RPC interaction)
-- **Requests** (REST API calls for Solana)
+Python 3.x
+
+Web3.py (Ethereum RPC interaction)
+
+Requests (REST API calls for Solana)
+
+Git (Version control & Colab integration)
 
 ## 🚀 Quick Start / 快速运行
-
 ### Option 1: Cloud Execution (Recommended)
-The easiest way to run this code without setting up a local environment is via Google Colab. Simply click the **"Open In Colab"** badge at the top of this page.
+The easiest way to run the analytical dashboard without setting up a local environment is via Google Colab. Simply click the "Open In Colab" badge at the top of this page. The notebook will automatically pull the latest modular code from this repository.
 
 ### Option 2: Local Setup
-If you prefer to run this locally in your Jupyter environment:
+If you prefer to run this locally in your Jupyter environment or IDE:
 
 1. Clone the repository:
-   ```bash
-   git clone [https://github.com/IsaacLeng/Crypto-Chain-Data-Fetcher.git](https://github.com/IsaacLeng/Crypto-Chain-Data-Fetcher.git)
+```Bash
+git clone [https://github.com/IsaacLeng/Crypto-Chain-Data-Fetcher.git](https://github.com/IsaacLeng/Crypto-Chain-Data-Fetcher.git)
+cd Crypto-Chain-Data-Fetcher
+```
 2. Install the required dependencies:
-   ```bash
-   pip install web3 requests
-3. Run the Python script or open the Jupyter Notebook.
-   Sample Output / 预期输出样本
-  ```Plaintext
-=== 以太坊 (Ethereum) 最新区块 ===
-区块高度: 19432851
-出块时间: 2024-03-15 10:12:45
-包含交易数: 142 笔
-区块大小: 125.40 KB
+```Bash
+pip install -r requirements.txt
+```
+3. Run the interactive notebook ETH_SOL_TPS_Analysis.ipynb or import the modules into your own script.
 
-=== Solana 最新区块 ===
-最新 Slot 高度: 254198273
-包含交易数: 2105 笔
+## 📊 Sample Output / 预期输出样本
 
-Developed for educational and data analysis purposes. / 仅供学习与数据分析参考。
+```text
+--- 实时吞吐量 (TPS) 深度分析 ---
+📊 Analyzing real-time TPS (ETH: last 5 blocks, SOL: last 15 slots)...
+
+=== Ethereum 实时吞吐量 ===
+采样区间: 区块 19432847 -> 19432851
+总耗时: 60 秒 | 总交易: 752 笔
+🚀 实际 TPS: 12.53 tx/s
+
+=== Solana 实时吞吐量 ===
+采样区间: 过去 15 个有效 Slots (截止 254198273)
+总耗时: 6.2 秒 | 总交易: 18450 笔
+🚀 实际 TPS: 2975.81 tx/s
+```
+Developed for educational and quantitative data analysis purposes. / 仅供学习与数据分析参考。
