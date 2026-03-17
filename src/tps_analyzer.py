@@ -1,3 +1,4 @@
+import pandas as pd
 from .chain_clients import EthClient, SolClient
 
 class NetworkAnalyzer:
@@ -90,3 +91,56 @@ class NetworkAnalyzer:
         print(f"采样区间: 过去 {sol_blocks} 个有效 Slots (截止 {latest_slot})")
         print(f"总耗时: {sol_time_diff} 秒 | 总交易: {sol_total_txs} 笔")
         print(f"🚀 实际 TPS: {sol_tps:.2f} tx/s\n")
+
+# ==========================================
+    # V3 方法 (新增)：将抓取到的区块数据转化为 Pandas DataFrame
+    # 作用：数据持久化，为后续的时间序列画图和特征工程做准备
+    # ==========================================
+    def build_tps_dataframe(self, eth_blocks=5, sol_blocks=15):
+        print(f"📦 Fetching and building DataFrame (ETH: {eth_blocks} blocks, SOL: {sol_blocks} slots)...\n")
+        
+        # 1. 收集 Ethereum 数据到列表
+        eth_data = []
+        latest_eth = self.eth_client.get_block_by_identifier('latest')
+        eth_end_height = latest_eth['height']
+        
+        for i in range(eth_end_height - eth_blocks + 1, eth_end_height + 1):
+            block = self.eth_client.get_block_by_identifier(i)
+            eth_data.append({
+                "Network": "Ethereum",
+                "Block_Height": block['height'],
+                "Timestamp": block['timestamp'],
+                "Tx_Count": block['tx_count'],
+                "Size_KB": block['size_kb']
+            })
+            
+        # 2. 收集 Solana 数据到列表
+        sol_data = []
+        latest_slot = self.sol_client.get_latest_slot()
+        valid_sol_blocks = 0
+        current_slot = latest_slot
+        
+        while valid_sol_blocks < sol_blocks:
+            block = self.sol_client.get_block_stats(current_slot)
+            if block and block['timestamp']:
+                sol_data.append({
+                    "Network": "Solana",
+                    "Block_Height": block['height'],
+                    "Timestamp": block['timestamp'],
+                    "Tx_Count": block['tx_count'],
+                    "Size_KB": None # Solana 目前接口未返回精确大小，置空
+                })
+                valid_sol_blocks += 1
+            current_slot -= 1
+            
+        # 3. 将列表合并并转化为 Pandas DataFrame
+        all_data = eth_data + sol_data
+        df = pd.DataFrame(all_data)
+        
+        # 4. 数据清洗：把干瘪的 Unix 时间戳转化成人类可读的 datetime 格式
+        df['Datetime'] = pd.to_datetime(df['Timestamp'], unit='s')
+        
+        # 按时间排序，让数据看起来更规整
+        df = df.sort_values(by='Datetime').reset_index(drop=True)
+        
+        return df
